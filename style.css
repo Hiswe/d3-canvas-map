@@ -7,17 +7,15 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: #333;
 }
 
 /* https://stripesgenerator.com  */
-body {
+html {
   background-image: linear-gradient(45deg, #98CD8D 2.38%, #F6F0CF 2.38%, #F6F0CF 50%, #98CD8D 50%, #98CD8D 52.38%, #F6F0CF 52.38%, #F6F0CF 100%);
 background-size: 29.70px 29.70px;
 }
 
-section {
-  
+section { 
   padding-right: var(--page-padding-x);
   padding-left: var(--page-padding-x);
 }
@@ -26,6 +24,7 @@ section {
   position: relative;
   outline: 1px solid mediumaquamarine;
   width: 100%;
+  /* https://web.dev/aspect-ratio/ */
   /* aspect-ratio: 960 / 700; */
   aspect-ratio: 960 / 600;
 }

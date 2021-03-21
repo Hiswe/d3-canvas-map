@@ -1,10 +1,24 @@
-import * as d3 from 'd3'
+// full d3 library is 266.6k (gzipped: 86.5.k)
+// import * as d3 from 'd3'
+import * as d3Geo from 'd3-geo'
+// d3-selection is 13.4k (gzipped: 4.2k)
+// we only used it for d3.pointer(event, $canvas)
+// import * as d3Selection from 'd3-selection'
+import * as d3Polygon from 'd3-polygon'
 import * as topojson from 'topojson'
 
 import './style.css'
 
 const MAP_URL = `https://unpkg.com/world-atlas@1/world/110m.json`
 const COUNTRIES_URL = `https://gist.githubusercontent.com/mbostock/4090846/raw/07e73f3c2d21558489604a0bc434b3a5cf41a867/world-country-names.tsv`
+
+const d3 = {
+  ...d3Geo,
+  ...d3Polygon,
+}
+
+// from
+// https://codepen.io/jorin/pen/YNajXZ
 
 //
 // Configuration
@@ -93,25 +107,6 @@ function stroke(obj, color) {
   context.stroke()
 }
 
-// https://github.com/d3/d3-polygon
-function polygonContains(polygon, point) {
-  var n = polygon.length
-  var p = polygon[n - 1]
-  var x = point[0],
-    y = point[1]
-  var x0 = p[0],
-    y0 = p[1]
-  var x1, y1
-  var inside = false
-  for (var i = 0; i < n; ++i) {
-    ;(p = polygon[i]), (x1 = p[0]), (y1 = p[1])
-    if (y1 > y !== y0 > y && x < ((x0 - x1) * (y - y1)) / (y0 - y1) + x1)
-      inside = !inside
-    ;(x0 = x1), (y0 = y1)
-  }
-  return inside
-}
-
 function mousemove(event) {
   var c = getCountry(event)
   if (!c) {
@@ -129,15 +124,18 @@ function mousemove(event) {
 }
 
 function getCountry(event) {
-  const pointerCoords = d3.pointer(event, $canvas)
+  // get relative coordinates
+  const rect = $canvas.getBoundingClientRect()
+  const pointerCoords = [event.clientX - rect.left, event.clientY - rect.top]
+  // take in account PIXEL_RATIO
   const adjustedCoords = pointerCoords.map((coord) => coord * PIXEL_RATIO)
   const pos = projection.invert(adjustedCoords)
   return countries.features.find((f) => {
     return f.geometry.coordinates.find((c1) => {
       return (
-        polygonContains(c1, pos) ||
+        d3.polygonContains(c1, pos) ||
         c1.find(function (c2) {
-          return polygonContains(c2, pos)
+          return d3.polygonContains(c2, pos)
         })
       )
     })
