@@ -34,7 +34,7 @@ let SELECTED_FILL_COLOR
 //
 
 const PIXEL_RATIO = window.devicePixelRatio || 1
-const $countryName = document.querySelector(`#current`)
+const $countryName = document.querySelector(`.map__country-name`)
 const $wrapper = document.querySelector(`.map`)
 const $canvas = $wrapper.querySelector(`canvas`)
 const context = $canvas.getContext(`2d`)
@@ -58,7 +58,7 @@ function enter(country) {
   $countryName.textContent = (country && country.name) || ``
 }
 
-function leave(country) {
+function leave() {
   $countryName.textContent = ``
 }
 
@@ -72,6 +72,8 @@ function scale() {
   height = boundingBox.height
   $canvas.setAttribute(`width`, width * PIXEL_RATIO)
   $canvas.setAttribute(`height`, height * PIXEL_RATIO)
+  // scale comes from:
+  // https://stackoverflow.com/a/54738220
   projection
     .scale((width * PIXEL_RATIO) / Math.PI / 2)
     .translate([(width * PIXEL_RATIO) / 2, (height * PIXEL_RATIO) / 1.55])

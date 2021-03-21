@@ -50,7 +50,7 @@ section {
   aspect-ratio: 960 / 525;
 }
 
-#current {
+.map__country-name {
   position: absolute;
   color: white;
   font-family: sans-serif;
@@ -61,7 +61,7 @@ section {
   color: var(--selected-fill-color);
 }
 
-.map canvas {
+.map__canvas {
   width: 100%;
   height: auto;
   display: block;

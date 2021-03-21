@@ -29,7 +29,7 @@ let SELECTED_FILL_COLOR
 //
 
 const PIXEL_RATIO = window.devicePixelRatio || 1
-const $countryName = document.querySelector(`#current`)
+const $countryName = document.querySelector(`.map__country-name`)
 const $wrapper = document.querySelector(`.map`)
 const $canvas = $wrapper.querySelector(`canvas`)
 const context = $canvas.getContext(`2d`)
@@ -49,7 +49,7 @@ function enter(country) {
   $countryName.textContent = country.properties?.name ?? ``
 }
 
-function leave(country) {
+function leave() {
   $countryName.textContent = ``
 }
 
