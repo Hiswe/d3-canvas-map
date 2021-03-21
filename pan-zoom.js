@@ -1,5 +1,8 @@
 import * as d3Geo from 'd3-geo'
 import * as d3Polygon from 'd3-polygon'
+import * as d3Selection from 'd3-selection'
+import * as d3Zoom from 'd3-zoom'
+import * as d3Transition from 'd3-transition'
 
 import './style.css'
 
@@ -10,6 +13,9 @@ const MAP_URL = `https://raw.githubusercontent.com/holtzy/D3-graph-gallery/maste
 const d3 = {
   ...d3Geo,
   ...d3Polygon,
+  ...d3Selection,
+  ...d3Zoom,
+  ...d3Transition,
 }
 
 // from
@@ -35,6 +41,7 @@ const $canvas = $wrapper.querySelector(`canvas`)
 const context = $canvas.getContext(`2d`)
 const projection = d3.geoMercator().precision(0.1)
 const path = d3.geoPath(projection).context(context)
+const zoom = d3.zoom().scaleExtent([1, 8]).on(`zoom`, zoomed)
 let width, height
 let countries
 let currentCountry
@@ -70,7 +77,11 @@ function scale() {
 }
 
 function render() {
-  context.clearRect(0, 0, width, height)
+  cleanCanvas()
+  drawCountries()
+}
+
+function drawCountries() {
   for (let country of countries.features) {
     fill(country, FILL_COLOR)
     stroke(country, STROKE_COLOR)
@@ -129,6 +140,24 @@ function getCountry(event) {
   })
 }
 
+// https://stackoverflow.com/a/6722031
+function cleanCanvas() {
+  context.save()
+  context.setTransform(1, 0, 0, 1, 0, 0)
+  context.clearRect(0, 0, width * PIXEL_RATIO, height * PIXEL_RATIO)
+  context.restore()
+}
+
+function zoomed(event) {
+  const { transform } = event
+  cleanCanvas()
+  context.save()
+  context.translate(transform.x, transform.y)
+  context.scale(transform.k, transform.k)
+  drawCountries()
+  context.restore()
+}
+
 //
 // Initialization
 //
@@ -145,7 +174,7 @@ export default async function init() {
   getColors()
   const resizeObserver = new ResizeObserver(scale)
   resizeObserver.observe($canvas)
-  $canvas.addEventListener(`mousemove`, mousemove)
+  d3.select(`.map__canvas`).call(zoom).on(`dblclick.zoom`, null)
   scale()
 }
 
