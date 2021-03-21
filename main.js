@@ -10,13 +10,11 @@ const COUNTRIES_URL = `https://gist.githubusercontent.com/mbostock/4090846/raw/0
 // Configuration
 //
 
-// scale of the globe (not the canvas element)
-var scaleFactor = 0.9
+// scale of the map (not the canvas element)
+const scaleFactor = 0.6
 // colors
-var colorWater = '#fff'
-var colorLand = '#111'
-var colorGraticule = '#ccc'
-var colorCountry = '#a00'
+const STROKE_COLOR = `#ccc`
+const colorCountry = '#a00'
 
 //
 // Variables
@@ -24,15 +22,14 @@ var colorCountry = '#a00'
 
 const PIXEL_RATIO = window.devicePixelRatio || 1
 const $countryName = document.querySelector(`#current`)
-const $canvas = document.querySelector(`canvas`)
+const $wrapper = document.querySelector(`.map`)
+const $canvas = $wrapper.querySelector(`canvas`)
 const context = $canvas.getContext(`2d`)
-var water = { type: 'Sphere' }
-var projection = d3.geoMercator().precision(0.1)
-var graticule = d3.geoGraticule10()
-var path = d3.geoPath(projection).context(context)
-var width, height
-let land, countries
-var countryList
+const projection = d3.geoMercator().precision(0.1)
+const path = d3.geoPath(projection).context(context)
+let width, height
+let countries
+let countryList
 var currentCountry
 
 context.scale(PIXEL_RATIO, PIXEL_RATIO)
@@ -58,21 +55,25 @@ function leave(country) {
 
 function scale() {
   console.log(`scale`)
-  width = document.documentElement.clientWidth
-  height = document.documentElement.clientHeight
+  const boundingBox = $wrapper.getBoundingClientRect()
+  width = boundingBox.width
+  height = boundingBox.height
   $canvas.setAttribute(`width`, width * PIXEL_RATIO)
   $canvas.setAttribute(`height`, height * PIXEL_RATIO)
   projection
-    .scale((scaleFactor * Math.min(width, height)) / 2)
-    .translate([width / 2, height / 2])
+    .scale(
+      (scaleFactor * Math.min(width * PIXEL_RATIO, height * PIXEL_RATIO)) / 2,
+    )
+    .translate([(width * PIXEL_RATIO) / 2, (height * PIXEL_RATIO) / 2])
   render()
 }
 
 function render() {
   context.clearRect(0, 0, width, height)
-  fill(water, colorWater)
-  stroke(graticule, colorGraticule)
-  fill(land, colorLand)
+  for (let country of countries.features) {
+    fill(country, `#fff`)
+    stroke(country, STROKE_COLOR)
+  }
   if (currentCountry) {
     fill(currentCountry, colorCountry)
   }
@@ -121,18 +122,18 @@ function mousemove(event) {
     }
     return
   }
-  if (c === currentCountry) {
-    return
-  }
+  if (c === currentCountry) return
   currentCountry = c
   render()
   enter(c)
 }
 
 function getCountry(event) {
-  var pos = projection.invert(d3.pointer(event, $canvas))
-  return countries.features.find(function (f) {
-    return f.geometry.coordinates.find(function (c1) {
+  const pointerCoords = d3.pointer(event, $canvas)
+  const adjustedCoords = pointerCoords.map((coord) => coord * PIXEL_RATIO)
+  const pos = projection.invert(adjustedCoords)
+  return countries.features.find((f) => {
+    return f.geometry.coordinates.find((c1) => {
       return (
         polygonContains(c1, pos) ||
         c1.find(function (c2) {
@@ -147,7 +148,7 @@ function getCountry(event) {
 // Initialization
 //
 
-export default async function init() {
+async function loadData() {
   const [mapResponse, countriesResponse] = await Promise.all([
     fetch(MAP_URL),
     fetch(COUNTRIES_URL),
@@ -156,7 +157,6 @@ export default async function init() {
     mapResponse.json(),
     countriesResponse.text(),
   ])
-  land = topojson.feature(world, world.objects.land)
   countries = topojson.feature(world, world.objects.countries)
   countryList = rawCountriesList
     .split(`\n`)
@@ -165,8 +165,12 @@ export default async function init() {
       return { id, name }
     })
     .slice(1)
+}
+
+export default async function init() {
+  await loadData()
   $canvas.addEventListener(`mousemove`, mousemove)
-  window.addEventListener('resize', scale)
+  window.addEventListener(`resize`, scale)
   scale()
 }
 

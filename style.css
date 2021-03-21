@@ -1,3 +1,9 @@
+:root {
+  --page-padding-x: calc(
+    (100vw - min(80vw, 120ch)) / 2
+  );
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -10,15 +16,34 @@ body {
 background-size: 29.70px 29.70px;
 }
 
-#globe {
-  cursor: move;
-  outline: 1px solid red;
+section {
+  
+  padding-right: var(--page-padding-x);
+  padding-left: var(--page-padding-x);
+}
+
+.map {
+  position: relative;
+  outline: 1px solid mediumaquamarine;
+  width: 100%;
+  /* aspect-ratio: 960 / 700; */
+  aspect-ratio: 960 / 600;
 }
 
 #current {
   position: absolute;
   color: white;
   font-family: sans-serif;
-  margin-left: 4%;
-  margin-top: 4%;
+  left: 1ch;
+  top: 1ch;
+  margin: 0;
+  z-index: 1;
+  color: red;
+}
+
+.map canvas {
+  width: 100%;
+  height: auto;
+  outline: 1px solid blue;
+  display: block;
 }
