@@ -1,0 +1,10 @@
+nav {
+  background: var(--accent);
+  color: white;
+  display: flex;
+}
+nav a {
+  padding: 1ch;
+  color: white;
+  text-decoration: none;
+}
