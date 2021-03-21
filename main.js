@@ -167,8 +167,9 @@ async function loadData() {
 
 export default async function init() {
   await loadData()
+  const resizeObserver = new ResizeObserver(scale)
+  resizeObserver.observe($canvas)
   $canvas.addEventListener(`mousemove`, mousemove)
-  window.addEventListener(`resize`, scale)
   scale()
 }
 
