@@ -67,17 +67,11 @@ function leave(country) {
 //
 
 function scale() {
-  console.log(`scale`)
   const boundingBox = $wrapper.getBoundingClientRect()
   width = boundingBox.width
   height = boundingBox.height
   $canvas.setAttribute(`width`, width * PIXEL_RATIO)
   $canvas.setAttribute(`height`, height * PIXEL_RATIO)
-  // projection
-  //   .scale(
-  //     (scaleFactor * Math.min(width * PIXEL_RATIO, height * PIXEL_RATIO)) / 2,
-  //   )
-  //   .translate([(width * PIXEL_RATIO) / 2, (height * PIXEL_RATIO) / 2])
   projection
     .scale((width * PIXEL_RATIO) / Math.PI / 2)
     .translate([(width * PIXEL_RATIO) / 2, (height * PIXEL_RATIO) / 1.55])
@@ -92,7 +86,7 @@ function render() {
   }
   if (currentCountry) {
     fill(currentCountry, SELECTED_FILL_COLOR)
-    stroke(currentCountry, SELECTED_FILL_COLOR)
+    stroke(currentCountry, SELECTED_FILL_COLOR, 2)
   }
 }
 
@@ -103,7 +97,8 @@ function fill(obj, color) {
   context.fill()
 }
 
-function stroke(obj, color) {
+function stroke(obj, color, width = 1) {
+  context.lineWidth = width
   context.beginPath()
   path(obj)
   context.strokeStyle = color
