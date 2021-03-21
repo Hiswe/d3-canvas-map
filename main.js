@@ -19,27 +19,11 @@ var colorGraticule = '#ccc'
 var colorCountry = '#a00'
 
 //
-// Handler
-//
-
-function enter(country) {
-  var country = countryList.find(function (c) {
-    return parseInt(c.id, 10) === parseInt(country.id, 10)
-  })
-  current.text((country && country.name) || '')
-}
-
-function leave(country) {
-  current.text('')
-}
-
-//
 // Variables
 //
 
 const PIXEL_RATIO = window.devicePixelRatio || 1
-console.log({ PIXEL_RATIO })
-var current = d3.select('#current')
+const $countryName = document.querySelector(`#current`)
 const $canvas = document.querySelector(`canvas`)
 const context = $canvas.getContext(`2d`)
 var water = { type: 'Sphere' }
@@ -52,6 +36,21 @@ var countryList
 var currentCountry
 
 context.scale(PIXEL_RATIO, PIXEL_RATIO)
+
+//
+// Handler
+//
+
+function enter(country) {
+  var country = countryList.find(function (c) {
+    return parseInt(c.id, 10) === parseInt(country.id, 10)
+  })
+  $countryName.textContent = (country && country.name) || ``
+}
+
+function leave(country) {
+  $countryName.textContent = ``
+}
 
 //
 // Functions
@@ -161,9 +160,11 @@ export default async function init() {
   countries = topojson.feature(world, world.objects.countries)
   countryList = rawCountriesList
     .split(`\n`)
-    .map((line) => line.trim().split(`\t`))
+    .map((line) => {
+      const [id, name] = line.trim().split(`\t`)
+      return { id, name }
+    })
     .slice(1)
-
   $canvas.addEventListener(`mousemove`, mousemove)
   window.addEventListener('resize', scale)
   scale()
