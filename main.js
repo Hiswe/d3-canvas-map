@@ -24,11 +24,10 @@ const d3 = {
 // Configuration
 //
 
-// scale of the map (not the canvas element)
-const scaleFactor = 0.6
 // colors
-const STROKE_COLOR = `#ccc`
-const colorCountry = '#a00'
+let STROKE_COLOR
+let FILL_COLOR
+let SELECTED_FILL_COLOR
 
 //
 // Variables
@@ -44,7 +43,7 @@ const path = d3.geoPath(projection).context(context)
 let width, height
 let countries
 let countryList
-var currentCountry
+let currentCountry
 
 context.scale(PIXEL_RATIO, PIXEL_RATIO)
 
@@ -74,22 +73,26 @@ function scale() {
   height = boundingBox.height
   $canvas.setAttribute(`width`, width * PIXEL_RATIO)
   $canvas.setAttribute(`height`, height * PIXEL_RATIO)
+  // projection
+  //   .scale(
+  //     (scaleFactor * Math.min(width * PIXEL_RATIO, height * PIXEL_RATIO)) / 2,
+  //   )
+  //   .translate([(width * PIXEL_RATIO) / 2, (height * PIXEL_RATIO) / 2])
   projection
-    .scale(
-      (scaleFactor * Math.min(width * PIXEL_RATIO, height * PIXEL_RATIO)) / 2,
-    )
-    .translate([(width * PIXEL_RATIO) / 2, (height * PIXEL_RATIO) / 2])
+    .scale((width * PIXEL_RATIO) / Math.PI / 2)
+    .translate([(width * PIXEL_RATIO) / 2, (height * PIXEL_RATIO) / 1.55])
   render()
 }
 
 function render() {
   context.clearRect(0, 0, width, height)
   for (let country of countries.features) {
-    fill(country, `#fff`)
+    fill(country, FILL_COLOR)
     stroke(country, STROKE_COLOR)
   }
   if (currentCountry) {
-    fill(currentCountry, colorCountry)
+    fill(currentCountry, SELECTED_FILL_COLOR)
+    stroke(currentCountry, SELECTED_FILL_COLOR)
   }
 }
 
@@ -134,9 +137,7 @@ function getCountry(event) {
     return f.geometry.coordinates.find((c1) => {
       return (
         d3.polygonContains(c1, pos) ||
-        c1.find(function (c2) {
-          return d3.polygonContains(c2, pos)
-        })
+        c1.find((c2) => d3.polygonContains(c2, pos))
       )
     })
   })
@@ -165,8 +166,16 @@ async function loadData() {
     .slice(1)
 }
 
+function getColors() {
+  const computedStyles = getComputedStyle(document.documentElement)
+  STROKE_COLOR = computedStyles.getPropertyValue(`--stroke-color`)
+  FILL_COLOR = computedStyles.getPropertyValue(`--fill-color`)
+  SELECTED_FILL_COLOR = computedStyles.getPropertyValue(`--selected-fill-color`)
+}
+
 export default async function init() {
   await loadData()
+  getColors()
   const resizeObserver = new ResizeObserver(scale)
   resizeObserver.observe($canvas)
   $canvas.addEventListener(`mousemove`, mousemove)

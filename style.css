@@ -1,32 +1,50 @@
 :root {
-  --page-padding-x: calc(
-    (100vw - min(80vw, 120ch)) / 2
-  );
+  --page-padding-x: calc((100vw - min(90vw, 160ch)) / 2);
+  --stroke-color: #ccc;
+  --fill-color: white;
+  --selected-fill-color: mediumVioletRed;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
 }
 
 /* https://stripesgenerator.com  */
 html {
-  background-image: linear-gradient(45deg, #98CD8D 2.38%, #F6F0CF 2.38%, #F6F0CF 50%, #98CD8D 50%, #98CD8D 52.38%, #F6F0CF 52.38%, #F6F0CF 100%);
-background-size: 29.70px 29.70px;
+  background-image: linear-gradient(
+    45deg,
+    #4f4f4f 2.38%,
+    #424242 2.38%,
+    #424242 50%,
+    #4f4f4f 50%,
+    #4f4f4f 52.38%,
+    #424242 52.38%,
+    #424242 100%
+  );
+  background-size: 29.7px 29.7px;
 }
 
-section { 
+section {
   padding-right: var(--page-padding-x);
   padding-left: var(--page-padding-x);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .map {
   position: relative;
-  outline: 1px solid mediumaquamarine;
   width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3ch;
+  /* how to tweak map display */
+  /* https://stackoverflow.com/a/54738220 */
+  /* new aspect ratio prop! */
   /* https://web.dev/aspect-ratio/ */
-  /* aspect-ratio: 960 / 700; */
-  aspect-ratio: 960 / 600;
+  aspect-ratio: 960 / 525;
 }
 
 #current {
@@ -37,12 +55,11 @@ section {
   top: 1ch;
   margin: 0;
   z-index: 1;
-  color: red;
+  color: var(--selected-fill-color);
 }
 
 .map canvas {
   width: 100%;
   height: auto;
-  outline: 1px solid blue;
   display: block;
 }
