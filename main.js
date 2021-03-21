@@ -1,6 +1,7 @@
-import './style.css'
 import * as d3 from 'd3'
 import * as topojson from 'topojson'
+
+import './style.css'
 
 const MAP_URL = `https://unpkg.com/world-atlas@1/world/110m.json`
 const COUNTRIES_URL = `https://gist.githubusercontent.com/mbostock/4090846/raw/07e73f3c2d21558489604a0bc434b3a5cf41a867/world-country-names.tsv`
@@ -36,9 +37,11 @@ function leave(country) {
 // Variables
 //
 
+const PIXEL_RATIO = window.devicePixelRatio || 1
+console.log({ PIXEL_RATIO })
 var current = d3.select('#current')
-var canvas = d3.select('#globe')
-var context = canvas.node().getContext('2d')
+const $canvas = document.querySelector(`canvas`)
+const context = $canvas.getContext(`2d`)
 var water = { type: 'Sphere' }
 var projection = d3.geoMercator().precision(0.1)
 var graticule = d3.geoGraticule10()
@@ -48,6 +51,8 @@ let land, countries
 var countryList
 var currentCountry
 
+context.scale(PIXEL_RATIO, PIXEL_RATIO)
+
 //
 // Functions
 //
@@ -56,7 +61,8 @@ function scale() {
   console.log(`scale`)
   width = document.documentElement.clientWidth
   height = document.documentElement.clientHeight
-  canvas.attr('width', width).attr('height', height)
+  $canvas.setAttribute(`width`, width * PIXEL_RATIO)
+  $canvas.setAttribute(`height`, height * PIXEL_RATIO)
   projection
     .scale((scaleFactor * Math.min(width, height)) / 2)
     .translate([width / 2, height / 2])
@@ -125,7 +131,7 @@ function mousemove(event) {
 }
 
 function getCountry(event) {
-  var pos = projection.invert(d3.pointer(event, canvas.node()))
+  var pos = projection.invert(d3.pointer(event, $canvas))
   return countries.features.find(function (f) {
     return f.geometry.coordinates.find(function (c1) {
       return (
@@ -141,8 +147,6 @@ function getCountry(event) {
 //
 // Initialization
 //
-
-canvas.on('mousemove', mousemove)
 
 export default async function init() {
   const [mapResponse, countriesResponse] = await Promise.all([
@@ -160,6 +164,7 @@ export default async function init() {
     .map((line) => line.trim().split(`\t`))
     .slice(1)
 
+  $canvas.addEventListener(`mousemove`, mousemove)
   window.addEventListener('resize', scale)
   scale()
 }
